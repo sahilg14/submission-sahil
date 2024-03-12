@@ -30,7 +30,7 @@ module.exports = (logSources, printer) => {
 
         if (batch.length === batchSize) {
           Promise.all(batch)
-            .then((resolvedValues) => {})
+            .then((resolvedValues) => {}) // nothing needs to be done here yet because all promises might not resolved yet
             .catch((error) => {
               console.error(error);
             });
@@ -42,9 +42,11 @@ module.exports = (logSources, printer) => {
       if (batch.length > 0) {
         Promise.all(batch)
           .then((resolvedValues) => {
+            // all promises are not resolved so can start reading from the heap
             while (mergedAsyncEntriesHeap.getMin()) {
               printer.print(mergedAsyncEntriesHeap.remove());
             }
+            resolve(console.log("Async sort complete."));
           })
           .catch((error) => {
             console.error(error);
@@ -54,7 +56,5 @@ module.exports = (logSources, printer) => {
 
     // resolve all promises
     handleBatchesOfPromises(promiseArray);
-
-    resolve(console.log("Async sort complete."));
   });
 };
